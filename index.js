@@ -30,7 +30,16 @@ async function run() {
 
     // all toys api
     app.get('/all-toys', async(req, res) => {
-      const result = await toysCollection.find().toArray()
+      let limit = req.query.limit
+      if(limit !== 'all'){
+        limit = parseInt(limit)
+      }
+      let result
+      if(limit !== 'all'){
+        result = await toysCollection.find().limit(limit).toArray()
+      }else{
+        result = await toysCollection.find().toArray()
+      }
       res.send(result)
     })
 

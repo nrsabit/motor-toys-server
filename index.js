@@ -72,38 +72,52 @@ async function run() {
     });
 
     // single toy
-    app.get('/toys/:id', async(req, res) => {
-      const id = req.params.id 
-      const query = {_id : new ObjectId(id)}
-      const result = await toysCollection.findOne(query)
-      res.send(result)
-    })
+    app.get("/toys/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await toysCollection.findOne(query);
+      res.send(result);
+    });
 
     // adding a new toy
-    app.post('/add-toy', async (req, res) => {
-      const toy = req.body
-      const result = await toysCollection.insertOne(toy)
+    app.post("/add-toy", async (req, res) => {
+      const toy = req.body;
+      const result = await toysCollection.insertOne(toy);
+      res.send(result);
+    });
+
+    // collecting my toys
+    app.get("/my-toys", async (req, res) => {
+      const email = req.query.email;
+      const query = { seller_email: email };
+      const result = await toysCollection.find(query).toArray();
+      console.log(result);
+      res.send(result);
+    });
+
+    // delete a toy
+    app.delete("/delete-toy/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await toysCollection.deleteOne(query);
+      res.send(result);
+    });
+
+    // update a toy
+    app.patch("/update-toy/:id", async (req, res) => {
+      const id = req.params.id;
+      const updatedToy = req.body;
+      const filter = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $set: {
+          price: updatedToy.price,
+          quantity: updatedToy.quantity,
+          description: updatedToy.description
+        },
+      };
+      const result = await toysCollection.updateOne(filter, updateDoc)
       res.send(result)
-    })
-
-    // collecting my toys 
-    app.get('/my-toys', async(req, res) => {
-      const email = req.query.email 
-      const query = {seller_email : email}
-      const result = await toysCollection.find(query).toArray()
-      console.log(result)
-      res.send(result)
-    })
-
-    // delete a toy 
-    app.delete('/delete-toy/:id', async (req, res) => {
-      const id = req.params.id
-      const query = {_id : new ObjectId(id)}
-      const result = await toysCollection.deleteOne(query)
-      res.send(result)
-    })
-
-
+    });
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });

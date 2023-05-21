@@ -89,9 +89,16 @@ async function run() {
     // collecting my toys
     app.get("/my-toys", async (req, res) => {
       const email = req.query.email;
+      const sort = req.query.sort;
       const query = { seller_email: email };
-      const result = await toysCollection.find(query).toArray();
-      console.log(result);
+      let result
+      if(sort && sort === 'asc'){
+        result = await toysCollection.find(query).sort({price: 1}).toArray();
+      }else if(sort && sort === 'dsc'){
+        result = await toysCollection.find(query).sort({price: -1}).toArray();
+      }else{
+        result = await toysCollection.find(query).toArray();
+      }
       res.send(result);
     });
 
